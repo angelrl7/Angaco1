@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Angaco 2 - Municipio</title>
+  
+  <!-- Script para aplicar el tema de inmediato antes de pintar la pantalla -->
+  <script src="theme.js"></script>
+
+  <!-- Hoja de estilos externa -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Encabezado y Navegación -->
+  <header>
+    <nav class="navbar">
+      <a href="#" class="brand">🏛️ Angaco Digital</a>
+      
+      <div class="nav-actions">
+        <ul class="nav-links">
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+
+        <!-- Botón para alternar Modo Claro / Oscuro -->
+        <button id="themeToggleBtn" class="theme-toggle" aria-label="Cambiar tema de color">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Oscuro</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Sección Principal / Hero -->
+  <section class="hero" id="inicio">
+    <div class="hero-content">
+      <h1>Bienvenidos a Angaco</h1>
+      <p>Tu portal ciudadano para acceder a información oficial, trámites y atención personalizada en tiempo real.</p>
+      <a href="#servicios" class="btn-primary">Ver Servicios</a>
+    </div>
+  </section>
+
+  <!-- Sección de Servicios Principales -->
+  <main class="container" id="servicios">
+    <div class="section-title">
+      <h2>Servicios Destacados</h2>
+      <p>Accedé rápidamente a las principales opciones municipales</p>
+    </div>
+
+    <div class="cards-grid">
+      <article class="card">
+        <div class="card-icon">📋</div>
+        <h3>Trámites en Línea</h3>
+        <p>Iniciá tus gestiones administrativas, habilitaciones y solicitudes de turnos sin moverte de tu casa.</p>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">🏥</div>
+        <h3>Salud y Guardias</h3>
+        <p>Consultá la ubicación de centros de atención primaria y guardias 24hs en el Hospital Dr. Alfredo Rizo Esparza.</p>
+      </article>
+
+      <article class="card">
+        <div class="card-icon">🚛</div>
+        <h3>Recolección y Limpieza</h3>
+        <p>Conocé el cronograma de recolección de residuos por zonas: Villa El Salvador, Campo Afuera y Las Tapias.</p>
+      </article>
+    </div>
+  </main>
+
+  <!-- Pie de página -->
+  <footer id="contacto">
+    <p>&copy; 2026 Municipalidad de Angaco - San Juan, Argentina. Todos los derechos reservados.</p>
+  </footer>
+
+  <!-- ==============================================
+       WIDGET DEL CHATBOT MUNICIPAL CON UBICACIÓN
+       ============================================== -->
+
+  <!-- Botón flotante para abrir el asistente -->
+  <button id="chatToggleBtn" class="chat-fab" aria-label="Abrir asistente virtual del municipio">
+    <span class="fab-icon">💬</span>
+    <span>Asistente Municipal</span>
+  </button>
+
+  <!-- Ventana emergente del chat -->
+  <aside id="chatWindow" class="chat-window" aria-label="Chatbot de atención ciudadana">
+    <!-- Cabecera -->
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <h3>Asistente de Angaco</h3>
+        <small><span class="status-dot"></span> En línea &bull; <span id="locationStatus">Ubicación sin activar</span></small>
+      </div>
+      <button id="chatCloseBtn" class="chat-close-btn" aria-label="Cerrar chat">&times;</button>
+    </div>
+
+    <!-- Banner para solicitar permiso de geolocalización -->
+    <div id="locationBanner" class="location-banner">
+      <span>📍 Activa tu ubicación para respuestas sobre tu zona</span>
+      <button id="btnRequestLocation" class="btn-location-action">Permitir</button>
+    </div>
+
+    <!-- Historial de mensajes -->
+    <div id="chatMessages" class="chat-messages" role="log" aria-live="polite">
+      <div class="chat-bubble chat-bot">
+        ¡Hola! 👋 Soy el asistente virtual de la Municipalidad de Angaco.
+        <br><br>
+        Puedo ayudarte con información sobre trámites, centros de salud, recolección de residuos y teléfonos de emergencia. Si activás tu ubicación en el botón superior, podré calcular las distancias y servicios más cercanos a vos.
+      </div>
+    </div>
+
+    <!-- Preguntas sugeridas (Chips) -->
+    <div id="quickChips" class="chat-chips">
+      <button class="chat-chip" data-query="¿Dónde queda la municipalidad y qué horarios tiene?">🏛️ Sede y horarios</button>
+      <button class="chat-chip" data-query="¿Cuál es el hospital o centro de salud más cercano?">🏥 Centros de Salud</button>
+      <button class="chat-chip" data-query="¿Qué días pasa la recolección de residuos?">🚛 Recolección</button>
+      <button class="chat-chip" data-query="¿Cómo renuevo el carnet de conducir?">🚗 Licencia de Conducir</button>
+      <button class="chat-chip" data-query="¿Cuáles son los teléfonos de emergencia y comisaría?">📞 Teléfonos útiles</button>
+    </div>
+
+    <!-- Formulario de envío -->
+    <form id="chatForm" class="chat-form">
+      <input type="text" id="chatInput" placeholder="Escribí tu consulta aquí..." autocomplete="off" required>
+      <button type="submit">Enviar</button>
+    </form>
+  </aside>
+
+  <!-- Scripts del Chatbot -->
+  <script src="chatbot.js"></script>
+</body>
+</html>

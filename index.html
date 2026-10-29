@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Municipio - Portal Ciudadano</title>
+  <style>
+    /* 1. PALETA DE COLORES DINÁMICA (TEMA CLARO POR DEFECTO) */
+    :root {
+      --primary: #006699;
+      --primary-hover: #004c73;
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --text: #1a202c;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --chat-ai-bg: #e2e8f0;
+      --chat-ai-text: #1a202c;
+      --chip-bg: #f1f5f9;
+      --radius: 8px;
+    }
+
+    /* 2. REGLAS PARA MODO OSCURO (DATA-THEME = DARK) */
+    [data-theme="dark"] {
+      --primary: #38bdf8;          /* Azul más claro para legibilidad sobre fondos negros */
+      --primary-hover: #0ea5e9;
+      --bg: #0b0f19;              /* Slate oscuro para evitar negros puros fatigantes */
+      --surface: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      --chat-ai-bg: #334155;
+      --chat-ai-text: #f8fafc;
+      --chip-bg: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Header Institucional */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Botón switch de tema */
+    .theme-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Galería / Puntos de Interés */
+    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+    .section-title { font-size: 1.5rem; margin-bottom: 1.2rem; }
+    
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .photo-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, border-color 0.25s ease;
+    }
+    .photo-card:hover { transform: translateY(-3px); }
+    .photo-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-card .info { padding: 1.2rem; }
+    .photo-card h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
+    .photo-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* WIDGET IA: Botón flotante */
+    .ai-fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: #0b0f19;
+      border: none;
+      border-radius: 50px;
+      padding: 0.9rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 100;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    [data-theme="light"] .ai-fab { color: #ffffff; }
+    .ai-fab:hover { transform: scale(1.04); }
+
+    /* Ventana del Chat */
+    .chat-window {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 1.5rem;
+      width: 380px;
+      height: 530px;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+      transition: opacity 0.2s, transform 0.2s, background-color 0.25s;
+    }
+    .chat-window[data-visible="false"] {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+    }
+
+    .chat-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-header h2 { font-size: 1rem; color: var(--text); }
+    .chat-header button { 
+      background: none; 
+      border: none; 
+      color: var(--text-muted); 
+      font-size: 1.3rem; 
+      cursor: pointer; 
+    }
+
+    /* Feed de mensajes */
+    .chat-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .msg {
+      max-width: 82%;
+      padding: 0.65rem 0.95rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .msg[data-sender="ai"] {
+      background: var(--chat-ai-bg);
+      color: var(--chat-ai-text);
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+    .msg[data-sender="user"] {
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 500;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+    [data-theme="light"] .msg[data-sender="user"] { color: #ffffff; }
+
+    /* Chips de sugerencias */
+    .quick-chips {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      overflow-x: auto;
+      background: var(--chip-bg);
+      border-top: 1px solid var(--border);
+    }
+    .chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Footer / Input del chat */
+    .chat-footer {
+      padding: 0.8rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      background: var(--surface);
+    }
+    .chat-footer input {
+      flex: 1;
+      padding: 0.65rem;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.9rem;
+    }
+    .chat-footer input:focus { border-color: var(--primary); }
+    .chat-footer button {
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 700;
+      border: none;
+      padding: 0.6rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    [data-theme="light"] .chat-footer button { color: #ffffff; }
+
+    @media (max-width: 480px) {
+      .chat-window { width: 100vw; height: 100vh; bottom: 0; right: 0; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        🏛️ <span>Municipio Conectado</span>
+      </div>
+      <div class="nav-actions">
+        <button id="themeToggleBtn" class="theme-toggle" aria-label="Cambiar tema de color">
+          <span id="themeIcon">🌙</span> <span id="themeText">Modo Oscuro</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO: FOTOS -->
+  <main class="container">
+    <h2 class="section-title">Obras y Espacios Públicos</h2>
+    
+    <section class="gallery-grid" aria-label="Galería municipal">
+      <article class="photo-card">
+        <img src="https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=600&auto=format&fit=crop" loading="lazy" alt="Parque renovado con luminarias led">
+        <div class="info">
+          <h3>Paseo de la Ribera</h3>
+          <p>Reconversión lumínica a LED y nuevas sendas aeróbicas peatonales.</p>
+        </div>
+      </article>
+
+      <article class="photo-card">
+        <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=600&auto=format&fit=crop" loading="lazy" alt="Palacio municipal">
+        <div class="info">
+          <h3>Edificio Central</h3>
+          <p>Sede central de atención al vecino, rentas y mesa de entradas.</p>
+        </div>
+      </article>
+
+      <article class="photo-card">
+        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop" loading="lazy" alt="Centro de salud">
+        <div class="info">
+          <h3>Unidad de Pronta Atención</h3>
+          <p>Guardia pediátrica y clínica las 24 horas del día.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- BOTÓN FLOTANTE (FAB) -->
+  <button id="btnOpenChat" class="ai-fab" aria-label="Abrir asistente de IA" aria-expanded="false">
+    💬 Consultas Ciudadanas
+  </button>
+
+  <!-- VENTANA DEL ASISTENTE VIRTUAL -->
+  <aside id="chatWindow" class="chat-window" data-visible="false" aria-hidden="true">
+    <div class="chat-header">
+      <div>
+        <h2>MuniBot Asistente</h2>
+        <small style="color: var(--text-muted); font-size: 0.75rem;">Impulsado por IA oficial</small>
+      </div>
+      <button id="btnCloseChat" aria-label="Cerrar ventana">&times;</button>
+    </div>
+
+    <div class="chat-feed" id="chatFeed" role="log" aria-live="polite">
+      <div class="msg" data-sender="ai">
+        ¡Hola! Soy el asistente virtual del municipio. ¿Sobre qué trámite o servicio tenés dudas?
+      </div>
+    </div>
+
+    <!-- Chips de atajos -->
+    <div class="quick-chips">
+      <button class="chip" data-query="¿Cómo renuevo mi registro de conducir?">Licencia de Conducir</button>
+      <button class="chip" data-query="¿Qué días pasa el camión de reciclaje?">Recolección</button>
+      <button class="chip" data-query="¿Dónde pago las tasas municipales online?">Pago de Tasas</button>
+    </div>
+
+    <form class="chat-footer" id="chatForm">
+      <input type="text" id="citizenInput" placeholder="Escribí acá tu consulta..." autocomplete="off" required>
+      <button type="submit">Enviar</button>
+    </form>
+  </aside>
+
+  <!-- SCRIPTS -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. GESTOR DE MODO OSCURO (Theme Manager Profesional)
+    // -------------------------------------------------------------
+    const htmlEl = document.documentElement;
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    function applyTheme(theme) {
+      htmlEl.setAttribute('data-theme', theme);
+      localStorage.setItem('municipio_theme', theme);
+
+      if (theme === 'dark') {
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Modo Claro';
+      } else {
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'Modo Oscuro';
+      }
+    }
+
+    // Inicialización: Lee localStorage o detecta el SO
+    const savedTheme = localStorage.getItem('municipio_theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    applyTheme(initialTheme);
+
+    // Switch manual al clickear
+    themeBtn.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-theme');
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+    });
+
+    // -------------------------------------------------------------
+    // 2. CONTROL DEL CHATBOT CIUDADANO
+    // -------------------------------------------------------------
+    const btnOpenChat = document.getElementById('btnOpenChat');
+    const btnCloseChat = document.getElementById('btnCloseChat');
+    const chatWindow = document.getElementById('chatWindow');
+    const chatForm = document.getElementById('chatForm');
+    const citizenInput = document.getElementById('citizenInput');
+    const chatFeed = document.getElementById('chatFeed');
+    const chips = document.querySelectorAll('.chip');
+
+    function toggleChat(show) {
+      chatWindow.setAttribute('data-visible', show);
+      chatWindow.setAttribute('aria-hidden', !show);
+      btnOpenChat.setAttribute('aria-expanded', show);
+      if (show) citizenInput.focus();
+    }
+
+    btnOpenChat.addEventListener('click', () => toggleChat(true));
+    btnCloseChat.addEventListener('click', () => toggleChat(false));
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        sendMessage(chip.getAttribute('data-query'));
+      });
+    });
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = citizenInput.value.trim();
+      if (!text) return;
+      sendMessage(text);
+      citizenInput.value = '';
+    });
+
+    function sendMessage(text) {
+      appendMessage('user', text);
+
+      // Placeholder de espera
+      const loading = appendMessage('ai', 'Consultando base de trámites...');
+
+      // TODO: Conectar llamada SSE / Fetch a tu backend con RAG
+      setTimeout(() => {
+        loading.textContent = "Respuesta simulada: Para realizar este trámite podés solicitar turno previo en ventanilla digital de 08:00 a 14:00 hs.";
+      }, 1000);
+    }
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement('div');
+      msg.className = 'msg';
+      msg.setAttribute('data-sender', sender);
+      msg.textContent = text;
+      chatFeed.appendChild(msg);
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+      return msg;
+    }
+  </script>
+</body>
+</html>
